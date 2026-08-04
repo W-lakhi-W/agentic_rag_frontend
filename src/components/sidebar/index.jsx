@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { LogOut } from "lucide-react";
 import SidebarItem from "../sidebar_item";
 import ChatHistoryItem from "../chat_history_item";
 import { useAuth } from "../../context/auth/AuthContext";
@@ -12,8 +13,13 @@ const Sidebar = ({
   onSelectNewChat,
   selectedChat,
 }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    window.location.reload();
+  };
 
   const filterditems = sidebarItems.filter((item) => {
     if (item.auth && !isAuthenticated) {
@@ -66,6 +72,19 @@ const Sidebar = ({
             )}
           </div>
         </>
+      )}
+
+      {isAuthenticated && (
+        <div className="mt-6 border-t border-border pt-4">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+          >
+            <LogOut size={16} />
+            Logout
+          </button>
+        </div>
       )}
     </>
   );
