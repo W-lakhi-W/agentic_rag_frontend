@@ -1,9 +1,11 @@
 import { Outlet } from "react-router-dom";
+import toast from "react-hot-toast";
 import Sidebar from "../../components/sidebar";
 import { sidebarItems } from "../../components/sidebar/sidebardata";
 import { demoChatHistory } from "../../components/sidebar/demochathistory";
 import { useEffect, useState } from "react";
 import { getChats, deleteChat, getMessages } from "../../api/chatapi";
+import Modal from "../../components/modal";
 
 const AppLayout = () => {
   const [chats, setChats] = useState([]);
@@ -11,6 +13,20 @@ const AppLayout = () => {
   const [messages, setMessages] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [deleteChatId, setDeleteChatId] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+
+  const sortChatsByNewest = (items = []) =>
+    [...items].sort((a, b) => {
+      const timeA = new Date(
+        a?.updated_at ?? a?.updatedAt ?? a?.created_at ?? a?.createdAt ?? 0,
+      ).getTime();
+      const timeB = new Date(
+        b?.updated_at ?? b?.updatedAt ?? b?.created_at ?? b?.createdAt ?? 0,
+      ).getTime();
+
+      return timeB - timeA;
+    });
 
   const fetchChats = async () => {
     try {
@@ -18,7 +34,7 @@ const AppLayout = () => {
 
       const { data } = await getChats();
 
-      setChats(data.chats);
+      setChats(sortChatsByNewest(data?.chats ?? []));
     } catch (error) {
       console.error("Failed to fetch chats:", error);
     } finally {
@@ -26,15 +42,30 @@ const AppLayout = () => {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDeleteRequest = (id) => {
+    setDeleteChatId(id);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!deleteChatId) return;
+
     try {
-      await deleteChat(id);
+      await deleteChat(deleteChatId);
 
-      setChats((prev) => prev.filter((chat) => chat.id !== id));
+      setChats((prev) => prev.filter((chat) => chat.id !== deleteChatId));
 
+      if (selectedChat === deleteChatId) {
+        setSelectedChat(null);
+        setMessages([]);
+      }
+
+      toast.success("Chat deleted successfully");
       setDeleteModalOpen(false);
+      setDeleteChatId(null);
     } catch (error) {
       console.error("Failed to delete chat:", error);
+      toast.error("Failed to delete chat");
     }
   };
 
@@ -69,12 +100,47 @@ const AppLayout = () => {
         <Sidebar
           sidebarItems={sidebarItems}
           chatHistory={chats}
-          onDelete={handleDelete}
+          onDelete={handleDeleteRequest}
           viewChat={handleViewChat}
           onSelectNewChat={handleSelectNewChat}
           selectedChat={selectedChat}
         />
       </aside>
+
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setDeleteChatId(null);
+        }}
+        title="Delete chat?"
+        footer={
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setDeleteModalOpen(false);
+                setDeleteChatId(null);
+              }}
+              className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-text hover:bg-background"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDelete}
+              className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+            >
+              Delete
+            </button>
+          </div>
+        }
+      >
+        <p className="text-sm text-text-muted">
+          This action cannot be undone. Are you sure you want to delete this
+          chat?
+        </p>
+      </Modal>
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden">

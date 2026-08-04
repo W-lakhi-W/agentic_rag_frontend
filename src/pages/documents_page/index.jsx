@@ -1,30 +1,37 @@
 import { useMemo, useState, useEffect } from "react";
 import { Eye, Trash2, Upload } from "lucide-react";
+import toast from "react-hot-toast";
 
-import Table from "../../components/table/index"
-import TableHeader from "../../components/table_header/index"
+import Table from "../../components/table/index";
+import TableHeader from "../../components/table_header/index";
 import Pagination from "../../components/pagination/index";
 import Button from "../../components/button/index";
 import Tooltip from "../../components/tooltip/index";
-import { getDocuments, deleteDocument, viewDocument } from "../../api/documentapi";
+import Modal from "../../components/modal";
+import {
+  getDocuments,
+  deleteDocument,
+  viewDocument,
+} from "../../api/documentapi";
 import cols from "./content/index.jsx";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 6;
 
 const DocumentsPage = () => {
-  const [documents,setDocuments] = useState([]);
+  const [documents, setDocuments] = useState([]);
+  const [documentToDelete, setDocumentToDelete] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const [search, setSearch] = useState("");
 
   const [page, setPage] = useState(1);
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchDocuments();
-  },[]);
+  }, []);
 
   const fetchDocuments = async () => {
     try {
-
       const { data } = await getDocuments();
 
       setDocuments(data?.documents);
@@ -34,23 +41,33 @@ const DocumentsPage = () => {
     }
   };
 
-  const handleDeleteDocument = async (id) => {
-    try {
-      await deleteDocument(id);
+  const handleDeleteRequest = (id) => {
+    setDocumentToDelete(id);
+    setDeleteModalOpen(true);
+  };
 
-      // Remove document from state
+  const handleDeleteDocument = async () => {
+    if (!documentToDelete) return;
+
+    try {
+      await deleteDocument(documentToDelete);
+
       setDocuments((prev) =>
-        prev.filter((document) => document.id !== id)
+        prev.filter((document) => document.id !== documentToDelete),
       );
 
+      toast.success("Document deleted successfully");
+      setDeleteModalOpen(false);
+      setDocumentToDelete(null);
       console.log("Document deleted successfully.");
     } catch (error) {
       console.error("Failed to delete document:", error);
+      toast.error("Failed to delete document");
     }
   };
 
   const handleViewDocument = async (id) => {
-    try{
+    try {
       const response = await viewDocument(id);
 
       const file = new Blob([response.data], {
@@ -60,36 +77,27 @@ const DocumentsPage = () => {
       const fileURL = URL.createObjectURL(file);
 
       window.open(fileURL, "_blank");
-
-    }catch(error){
-      console.error("failed to view document", error)
+    } catch (error) {
+      console.error("failed to view document", error);
     }
-  }
+  };
 
   const filteredDocuments = useMemo(() => {
     return documents.filter((doc) =>
-      doc.filename.toLowerCase().includes(search.toLowerCase())
+      doc.filename.toLowerCase().includes(search.toLowerCase()),
     );
   }, [documents, search]);
 
-  const totalPages = Math.ceil(
-    filteredDocuments.length / PAGE_SIZE
-  );
+  const totalPages = Math.ceil(filteredDocuments.length / PAGE_SIZE);
 
   const paginatedDocuments = useMemo(() => {
     const start = (page - 1) * PAGE_SIZE;
 
-    return filteredDocuments.slice(
-      start,
-      start + PAGE_SIZE
-    );
+    return filteredDocuments.slice(start, start + PAGE_SIZE);
   }, [filteredDocuments, page]);
-
-  
 
   return (
     <div className="space-y-6 p-6">
-
       <TableHeader
         title="Documents"
         description="Manage your uploaded PDF documents."
@@ -109,10 +117,48 @@ const DocumentsPage = () => {
       />
 
       <Table
-        columns={cols({onDelete:handleDeleteDocument,onView:handleViewDocument})}
+        columns={cols({
+          onDelete: handleDeleteRequest,
+          onView: handleViewDocument,
+        })}
         data={paginatedDocuments}
         emptyMessage="No documents found."
       />
+
+      <Modal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setDocumentToDelete(null);
+        }}
+        title="Delete document?"
+        footer={
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                setDeleteModalOpen(false);
+                setDocumentToDelete(null);
+              }}
+              className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-text hover:bg-background"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleDeleteDocument}
+              className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+            >
+              Delete
+            </button>
+          </div>
+        }
+      >
+        <p className="text-sm text-text-muted">
+          This action cannot be undone. Are you sure you want to delete this
+          document?
+        </p>
+      </Modal>
 
       <Pagination
         currentPage={page}
@@ -121,7 +167,6 @@ const DocumentsPage = () => {
         pageSize={PAGE_SIZE}
         onPageChange={setPage}
       />
-
     </div>
   );
 };

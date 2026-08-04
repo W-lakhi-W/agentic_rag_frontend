@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useLocation, useOutletContext } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import ChatHeader from "../../components/chat_header";
 import ChatMessages from "../../components/chat_messages";
@@ -196,8 +197,10 @@ const ChatPage = () => {
       const { data } = await loginRequest(values);
       setAuthUser(data.access_token, data.refresh_token, data.token_type);
       setIsLoginOpen(false);
+      toast.success("Logged in successfully");
     } catch (error) {
       console.error(error);
+      toast.error("Login failed. Please try again.");
     }
   };
 
@@ -207,17 +210,19 @@ const ChatPage = () => {
       console.log("Signup response:", data);
       setIsSignupOpen(false);
       setIsLoginOpen(true);
+      toast.success("Account created successfully. Please log in.");
     } catch (error) {
       console.error("Signup error:", error);
+      toast.error("Sign up failed. Please try again.");
     }
   };
 
   return (
     <div className="flex h-full flex-col bg-background">
-      <ChatHeader
-        title=""
-        actions={
-          !isAuthenticated && (
+      {!isAuthenticated && (
+        <ChatHeader
+          title=""
+          actions={
             <>
               <Button size="sm" onClick={() => setIsLoginOpen(true)}>
                 Log in
@@ -230,10 +235,9 @@ const ChatPage = () => {
                 Sign up
               </Button>
             </>
-          )
-        }
-      />
-
+          }
+        />
+      )}
       <ChatMessages
         messages={messages}
         loading={loading}

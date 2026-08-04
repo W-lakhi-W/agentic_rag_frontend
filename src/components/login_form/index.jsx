@@ -37,6 +37,9 @@ const LoginForm = ({
     if (!formData.password.trim()) {
       newErrors.password = "Password is required.";
     }
+    if(!formData.username.trim()){
+      newErrors.username = "Username is required.";
+    }
 
     setErrors(newErrors);
 
