@@ -9,7 +9,7 @@ const API = {
 
   CHAT: {
     LIST: "api/chats",
-    CREATE: "/chat",
+    CREATE: "api/chat",
     MESSAGE: (id) => `api/chat/${id}`,
     DELETE: (id) => `api/chat/${id}`,
     MESSAGES: (id) => `api/chat/${id}`,

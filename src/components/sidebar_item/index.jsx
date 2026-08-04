@@ -1,12 +1,21 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
-const SidebarItem = ({ item }) => {
+const SidebarItem = ({ item, activeChatId, onClick }) => {
   const Icon = item.icon;
+  const location = useLocation();
+
+  const isChatRoute = item.path === "/chats";
+  const isActive = isChatRoute
+    ? location.pathname === item.path && !activeChatId
+    : location.pathname === item.path;
 
   return (
     <NavLink
       to={item.path}
-      className={({ isActive }) =>
+      onClick={() => {
+        if (isChatRoute) onClick?.();
+      }}
+      className={() =>
         `
         flex items-center gap-3
         px-4 py-3

@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { useLocation, useOutletContext } from "react-router-dom";
 
 import ChatHeader from "../../components/chat_header";
 import ChatMessages from "../../components/chat_messages";
@@ -13,21 +13,20 @@ import LoginForm from "../../components/login_form";
 import SignupForm from "../../components/signup_form";
 import { login as loginRequest, register } from "../../api/authapi";
 import { useAuth } from "../../context/auth/AuthContext";
-import { sendMessage } from "../../api/chatapi";
+import { createChat, sendMessage } from "../../api/chatapi";
 import { uploadDocuments } from "../../api/documentapi";
 
-
 const ChatPage = () => {
+  const { messages, setMessages, selectedChat, setSelectedChat, fetchChats } =
+    useOutletContext();
 
-  const {
-    messages,
-    setMessages,
-    selectedChat,
-  } = useOutletContext();
+  const location = useLocation();
+  const selectedChatRef = useRef(selectedChat);
 
+  useEffect(() => {
+    selectedChatRef.current = selectedChat;
+  }, [selectedChat]);
 
-
-  // const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
   const [files, setFiles] = useState([]);
@@ -43,134 +42,94 @@ const ChatPage = () => {
     fileInputRef.current?.click();
   };
 
-  // const handleFileChange = (e) => {
-  //   const selectedFiles = Array.from(e.target.files);
+  const handleFileChange = async (e) => {
+    const files = Array.from(e.target.files || []);
 
-  //   if (!selectedFiles.length) return;
+    if (!files.length) return;
 
-  //   const pdfFiles = [];
-  //   const invalidFiles = [];
+    const uploadItems = files.map((file) => ({
+      id: crypto.randomUUID(),
+      file,
+      progress: 0,
+    }));
 
-  //   selectedFiles.forEach((file) => {
-  //     if (file.type === "application/pdf") {
-  //       pdfFiles.push({
-  //         id: crypto.randomUUID(),
-  //         file,
-  //         name: file.name,
-  //         size: file.size,
-  //       });
-  //     } else {
-  //       invalidFiles.push(file.name);
-  //     }
-  //   });
+    setUploadFiles((prev) => [...prev, ...uploadItems]);
 
-  //   if (invalidFiles.length) {
-  //     alert(`Only PDF files are allowed.\n\n${invalidFiles.join("\n")}`);
-  //   }
+    for (const item of uploadItems) {
+      const formData = new FormData();
+      formData.append("files", item.file);
 
-  //   setFiles((prev) => [...prev, ...pdfFiles]);
+      try {
+        await uploadDocuments(formData, (progress) => {
+          // ✅ Update this file's progress
+          setUploadFiles((prev) =>
+            prev.map((file) =>
+              file.id === item.id
+                ? {
+                    ...file,
+                    progress,
+                  }
+                : file,
+            ),
+          );
+        });
 
-  //   // Allow selecting the same file again
-  //   e.target.value = "";
-  // };
-
-
-//   const handleFileChange = async (e) => {
-//   const files = Array.from(e.target.files || []);
-
-//   if (!files.length) return;
-
-//   const formData = new FormData();
-
-//   files.forEach((file) => {
-//     formData.append("files", file);
-//   });
-
-//   try {
-//     setUploading(true);
-//     setUploadProgress(0);
-
-//     await uploadDocuments(formData, (progress) => {
-//       setUploadProgress(progress);
-//     });
-
-//     await fetchDocuments();
-
-//     fileInputRef.current.value = "";
-//   } catch (error) {
-//     console.error(error);
-//   } finally {
-//     setUploading(false);
-//     setUploadProgress(0);
-//   }
-// };
-
-const handleFileChange = async (e) => {
-  const files = Array.from(e.target.files || []);
-
-  if (!files.length) return;
-
-  const uploadItems = files.map((file) => ({
-    id: crypto.randomUUID(),
-    file,
-    progress: 0,
-  }));
-
-  setUploadFiles((prev) => [...prev, ...uploadItems]);
-
-  for (const item of uploadItems) {
-    const formData = new FormData();
-    formData.append("files", item.file);
-
-    try {
-      await uploadDocuments(formData, (progress) => {
-        // ✅ Update this file's progress
+        // ✅ Mark upload complete
         setUploadFiles((prev) =>
           prev.map((file) =>
             file.id === item.id
               ? {
                   ...file,
-                  progress,
+                  progress: 100,
                 }
-              : file
-          )
+              : file,
+          ),
         );
-      });
-
-      // ✅ Mark upload complete
-      setUploadFiles((prev) =>
-        prev.map((file) =>
-          file.id === item.id
-            ? {
-                ...file,
-                progress: 100,
-              }
-            : file
-        )
-      );
-    } catch (error) {
-      // ✅ Mark upload failed
-      setUploadFiles((prev) =>
-        prev.map((file) =>
-          file.id === item.id
-            ? {
-                ...file,
-              }
-            : file
-        )
-      );
+      } catch (error) {
+        // ✅ Mark upload failed
+        setUploadFiles((prev) =>
+          prev.map((file) =>
+            file.id === item.id
+              ? {
+                  ...file,
+                }
+              : file,
+          ),
+        );
+      }
     }
-  }
-};
+  };
 
   const handleRemoveFile = (id) => {
-  setUploadFiles((prev) =>
-    prev.filter((file) => file.id !== id)
-  );
-};
+    setUploadFiles((prev) => prev.filter((file) => file.id !== id));
+  };
+
+  const normalizeMessage = (message) => {
+    if (!message) return null;
+
+    if (typeof message === "object") {
+      return {
+        id: message.id ?? crypto.randomUUID(),
+        role: message.role ?? "assistant",
+        content: message.content ?? "",
+        createdAt: message.createdAt ?? new Date().toISOString(),
+        sources: message.sources ?? [],
+      };
+    }
+
+    return null;
+  };
 
   const handleSend = async (text) => {
-    if (!text.trim() || loading || !selectedChat) return;
+    if (!text.trim() || loading) return;
+
+    setUploadFiles([]);
+    setFiles([]);
+    fileInputRef.current.value = "";
+
+    const activeChatId = selectedChatRef.current ?? selectedChat;
+    const isNewChat =
+      !activeChatId && messages.length === 0 && location.pathname === "/chats";
 
     const userMessage = {
       id: crypto.randomUUID(),
@@ -179,24 +138,53 @@ const handleFileChange = async (e) => {
       createdAt: new Date().toISOString(),
     };
 
-    // Show user's message immediately
     setMessages((prev) => [...prev, userMessage]);
 
     try {
       setLoading(true);
 
-      const { data } = await sendMessage(selectedChat, text);
+      if (isNewChat) {
+        const { data } = await createChat(text);
+        // const responseData = data?.data ?? data;
 
-      setMessages((prev) => [
-        ...prev,
-        data.message,
-      ]);
+        const createdChatId = data?.message?.chat_id;
+
+        if (createdChatId) {
+          selectedChatRef.current = createdChatId;
+          setSelectedChat(createdChatId);
+          await fetchChats?.();
+        }
+
+        const createdMessages = data?.chat_history ?? [];
+
+        const normalizedReply = normalizeMessage(data?.message);
+
+        if (Array.isArray(createdMessages) && createdMessages.length > 0) {
+          setMessages(
+            createdMessages
+              .map((item) => normalizeMessage(item))
+              .filter(Boolean),
+          );
+        } else if (normalizedReply) {
+          setMessages((prev) => [...prev, normalizedReply]);
+        }
+
+        return;
+      }
+
+      const { data } = await sendMessage(activeChatId, text);
+      const replyMessage = normalizeMessage(
+        data?.message ?? data?.data?.message,
+      );
+
+      if (replyMessage) {
+        setMessages((prev) => [...prev, replyMessage]);
+      }
     } catch (error) {
       console.error("Failed to send message:", error);
 
-      // Optional: remove optimistic user message if request fails
       setMessages((prev) =>
-        prev.filter((message) => message.id !== userMessage.id)
+        prev.filter((message) => message.id !== userMessage.id),
       );
     } finally {
       setLoading(false);
@@ -218,7 +206,7 @@ const handleFileChange = async (e) => {
       const { data } = await register(values);
       console.log("Signup response:", data);
       setIsSignupOpen(false);
-      setIsLoginOpen(true)
+      setIsLoginOpen(true);
     } catch (error) {
       console.error("Signup error:", error);
     }
@@ -227,7 +215,7 @@ const handleFileChange = async (e) => {
   return (
     <div className="flex h-full flex-col bg-background">
       <ChatHeader
-        title="Agentic RAG"
+        title=""
         actions={
           !isAuthenticated && (
             <>
@@ -268,14 +256,11 @@ const handleFileChange = async (e) => {
         }
       />
 
-        <div className="ml-4">
-          {uploadFiles.length > 0 && (
-              <UploadPreview
-                  files={uploadFiles}
-                  onRemove={handleRemoveFile}
-              />
-          )}
-          </div>
+      <div className="ml-4">
+        {uploadFiles.length > 0 && (
+          <UploadPreview files={uploadFiles} onRemove={handleRemoveFile} />
+        )}
+      </div>
 
       <ChatInput
         onSend={handleSend}

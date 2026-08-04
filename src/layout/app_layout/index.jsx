@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { getChats, deleteChat, getMessages } from "../../api/chatapi";
 
 const AppLayout = () => {
-
   const [chats, setChats] = useState([]);
   const [loadingChats, setLoadingChats] = useState(false);
   const [messages, setMessages] = useState([]);
@@ -15,25 +14,23 @@ const AppLayout = () => {
 
   const fetchChats = async () => {
     try {
-        setLoadingChats(true);
+      setLoadingChats(true);
 
-        const { data } = await getChats();
+      const { data } = await getChats();
 
-        setChats(data.chats);
-      } catch (error) {
-        console.error("Failed to fetch chats:", error);
-      } finally {
-        setLoadingChats(false);
-      }
-    };
-  
+      setChats(data.chats);
+    } catch (error) {
+      console.error("Failed to fetch chats:", error);
+    } finally {
+      setLoadingChats(false);
+    }
+  };
+
   const handleDelete = async (id) => {
-  try {
+    try {
       await deleteChat(id);
 
-      setChats((prev) =>
-        prev.filter((chat) => chat.id !== id)
-      );
+      setChats((prev) => prev.filter((chat) => chat.id !== id));
 
       setDeleteModalOpen(false);
     } catch (error) {
@@ -56,26 +53,40 @@ const AppLayout = () => {
     }
   };
 
-  useEffect(()=>{
+  const handleSelectNewChat = () => {
+    setMessages([]);
+    setSelectedChat(null);
+  };
+
+  useEffect(() => {
     fetchChats();
-  },[]);
+  }, []);
 
   return (
     <div className="h-screen flex overflow-hidden bg-gray-100">
       {/* Sidebar */}
       <aside className="w-64 border-r border-border bg-white h-screen p-5">
-        <Sidebar sidebarItems={sidebarItems} chatHistory={chats} onDelete={handleDelete} viewChat={handleViewChat} />
+        <Sidebar
+          sidebarItems={sidebarItems}
+          chatHistory={chats}
+          onDelete={handleDelete}
+          viewChat={handleViewChat}
+          onSelectNewChat={handleSelectNewChat}
+          selectedChat={selectedChat}
+        />
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-hidden">
         <Outlet
-        context={{
-          messages,
-          setMessages,
-          selectedChat,
-        }}
-         />
+          context={{
+            messages,
+            setMessages,
+            selectedChat,
+            setSelectedChat,
+            fetchChats,
+          }}
+        />
       </main>
     </div>
   );
