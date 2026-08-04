@@ -3,6 +3,7 @@ import { Eye, Trash2, Upload } from "lucide-react";
 import toast from "react-hot-toast";
 
 import Table from "../../components/table/index";
+import { useAuth } from "../../context/auth/AuthContext";
 import TableHeader from "../../components/table_header/index";
 import Pagination from "../../components/pagination/index";
 import Button from "../../components/button/index";
@@ -21,16 +22,21 @@ const DocumentsPage = () => {
   const [documents, setDocuments] = useState([]);
   const [documentToDelete, setDocumentToDelete] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const [search, setSearch] = useState("");
 
   const [page, setPage] = useState(1);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     fetchDocuments();
-  }, []);
+  }, [isAuthenticated]);
 
   const fetchDocuments = async () => {
+    if (!isAuthenticated) return;
+
     try {
       const { data } = await getDocuments();
 
@@ -47,7 +53,7 @@ const DocumentsPage = () => {
   };
 
   const handleDeleteDocument = async () => {
-    if (!documentToDelete) return;
+    if (!documentToDelete || !isAuthenticated) return;
 
     try {
       await deleteDocument(documentToDelete);
@@ -67,6 +73,8 @@ const DocumentsPage = () => {
   };
 
   const handleViewDocument = async (id) => {
+    if (!isAuthenticated) return;
+
     try {
       const response = await viewDocument(id);
 

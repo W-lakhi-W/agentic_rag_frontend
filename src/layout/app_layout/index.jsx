@@ -6,6 +6,7 @@ import { demoChatHistory } from "../../components/sidebar/demochathistory";
 import { useEffect, useState } from "react";
 import { getChats, deleteChat, getMessages } from "../../api/chatapi";
 import Modal from "../../components/modal";
+import { useAuth } from "../../context/auth/AuthContext";
 
 const AppLayout = () => {
   const [chats, setChats] = useState([]);
@@ -15,6 +16,7 @@ const AppLayout = () => {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [deleteChatId, setDeleteChatId] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const sortChatsByNewest = (items = []) =>
     [...items].sort((a, b) => {
@@ -48,7 +50,7 @@ const AppLayout = () => {
   };
 
   const handleDelete = async () => {
-    if (!deleteChatId) return;
+    if (!deleteChatId || !isAuthenticated) return;
 
     try {
       await deleteChat(deleteChatId);
@@ -70,6 +72,8 @@ const AppLayout = () => {
   };
 
   const handleViewChat = async (id) => {
+    if (!isAuthenticated) return;
+
     try {
       setLoadingMessages(true);
 
@@ -90,8 +94,10 @@ const AppLayout = () => {
   };
 
   useEffect(() => {
+    if (!isAuthenticated) return;
+
     fetchChats();
-  }, []);
+  }, [isAuthenticated]);
 
   return (
     <div className="h-screen flex overflow-hidden bg-gray-100">

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Mail, Lock } from "lucide-react";
+import { User, Lock } from "lucide-react";
 
 import Button from "../button";
 import FormField from "../form_field"
@@ -67,7 +67,7 @@ const LoginForm = ({
         value={formData.username}
         onChange={handleChange}
         error={errors.username}
-        leftIcon={<Mail size={18} />}
+        leftIcon={<User size={18} />}
       />
 
       <FormField

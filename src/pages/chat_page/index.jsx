@@ -40,10 +40,20 @@ const ChatPage = () => {
   const { login: setAuthUser, isAuthenticated } = useAuth();
 
   const handleUpload = () => {
+    if (!isAuthenticated) {
+      toast.error("Please log in to upload files");
+      return;
+    }
+
     fileInputRef.current?.click();
   };
 
   const handleFileChange = async (e) => {
+    if (!isAuthenticated) {
+      toast.error("Please log in to upload files");
+      return;
+    }
+
     const files = Array.from(e.target.files || []);
 
     if (!files.length) return;
@@ -123,6 +133,11 @@ const ChatPage = () => {
 
   const handleSend = async (text) => {
     if (!text.trim() || loading) return;
+
+    if (!isAuthenticated) {
+      toast.error("Please log in to chat");
+      return;
+    }
 
     setUploadFiles([]);
     setFiles([]);

@@ -52,7 +52,7 @@ const ChatHistoryItem = ({
 
       </div>
 
-      <Tooltip content="Delete chat">
+      <Tooltip content="Delete chat" size="sm">
         <button
           onClick={handleDelete}
           className={`
