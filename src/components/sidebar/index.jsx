@@ -24,7 +24,7 @@ const Sidebar = ({
     logout();
     toast.success("Logged out successfully");
     setLogoutModalOpen(false);
-    // window.location.reload();
+    window.location.reload();
   };
 
   const filterditems = sidebarItems.filter((item) => {
