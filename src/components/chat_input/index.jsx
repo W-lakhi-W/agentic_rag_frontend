@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Tooltip from "../tooltip";
-import { SendHorizontal } from "lucide-react";
+import { SendHorizontal, Paperclip } from "lucide-react";
+
 
 const ChatInput = ({
   placeholder = "Ask anything...",
@@ -34,7 +35,7 @@ const ChatInput = ({
           onClick={onUpload}
           className="rounded-lg cursor-pointer border border-border p-3 hover:bg-surface"
         >
-          📎
+          <Paperclip size={18} />
         </button>
         </Tooltip>
 

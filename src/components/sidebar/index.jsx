@@ -37,7 +37,16 @@ const Sidebar = ({
 
   return (
     <>
-      <h1 className="text-2xl font-bold mb-8">Agentic RAG</h1>
+      <div className="mb-8 flex items-center gap-3">
+        <img
+          src="/logo.png"
+          alt="Agent logo"
+          className="h-10 w-auto object-contain"
+        />
+        <span className="text-xl font-semibold tracking-tight text-black-600">
+          Agent
+        </span>
+      </div>
 
       <nav className="space-y-2">
         {filterditems.map((item) => (

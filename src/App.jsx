@@ -19,7 +19,7 @@ function App() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        <Route path="/" element={<div>Welcome to the App</div>} />
+        <Route path="/" element={<Navigate to="/chats" replace />} />
         <Route path="/chats" element={<ChatPage />} />
         <Route
           path="/documents"
