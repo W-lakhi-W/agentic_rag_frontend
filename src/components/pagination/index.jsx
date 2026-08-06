@@ -24,7 +24,7 @@ const Pagination = ({
   const endItem = Math.min(currentPage * pageSize, totalItems);
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-border bg-background p-4 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-4 rounded-xl border border-border bg-background p-3 sm:p-4 md:flex-row md:items-center md:justify-between">
 
       {/* Info */}
       <p className="text-sm text-text-muted">
@@ -32,7 +32,7 @@ const Pagination = ({
       </p>
 
       {/* Buttons */}
-      <div className="flex items-center gap-2">
+      <div className="flex max-w-full items-center gap-2 overflow-x-auto pb-1">
 
         <button
           onClick={() => onPageChange(currentPage - 1)}
@@ -41,6 +41,7 @@ const Pagination = ({
             rounded-lg
             border
             border-border
+            min-h-11
             px-3
             py-2
             disabled:cursor-not-allowed
@@ -57,7 +58,7 @@ const Pagination = ({
             onClick={() => onPageChange(page)}
             className={`
               h-10
-              w-10
+              min-w-10
               rounded-lg
               transition
 
@@ -79,6 +80,7 @@ const Pagination = ({
             rounded-lg
             border
             border-border
+            min-h-11
             px-3
             py-2
             disabled:cursor-not-allowed

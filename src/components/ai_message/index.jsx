@@ -1,8 +1,8 @@
 const AIMessage = ({ message }) => {
   return (
     <div className="flex justify-start">
-      <div className="max-w-[80%] rounded-2xl bg-gray-100 px-5 py-3">
-        <p className="whitespace-pre-wrap">
+      <div className="max-w-[92%] overflow-hidden rounded-2xl bg-gray-100 px-4 py-3 sm:max-w-[80%] sm:px-5">
+        <p className="whitespace-pre-wrap break-words text-sm sm:text-base">
           {message.content}
         </p>
 
@@ -16,7 +16,7 @@ const AIMessage = ({ message }) => {
               {message.sources.map((source) => (
                 <span
                   key={source}
-                  className="rounded bg-white px-3 py-1 text-sm"
+                  className="max-w-full truncate rounded bg-white px-3 py-1 text-sm"
                 >
                   {source}
                 </span>

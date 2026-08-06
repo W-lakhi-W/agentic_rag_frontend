@@ -105,7 +105,7 @@ const DocumentsPage = () => {
   }, [filteredDocuments, page]);
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-4 p-4 pt-16 md:space-y-6 md:p-6">
       <TableHeader
         title="Documents"
         description="Manage your uploaded PDF documents."
@@ -141,7 +141,7 @@ const DocumentsPage = () => {
         }}
         title="Delete document?"
         footer={
-          <div className="flex justify-end gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={() => {

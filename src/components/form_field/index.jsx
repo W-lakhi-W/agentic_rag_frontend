@@ -19,7 +19,7 @@ const FormField = ({
 }) => {
   const inputStyles = `
     w-full rounded-lg border border-gray-300
-    px-4 py-2.5
+    min-h-11 px-4 py-2.5
     bg-white
     text-gray-900
     placeholder:text-gray-400
@@ -103,7 +103,7 @@ const FormField = ({
 
       <div className="relative">
         {leftIcon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2">
+          <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2">
             {leftIcon}
           </div>
         )}

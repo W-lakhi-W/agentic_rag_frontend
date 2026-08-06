@@ -27,13 +27,13 @@ const ChatInput = ({
   };
 
   return (
-    <div className="border-t border-border bg-background p-4">
-      <div className="flex items-end gap-3">
+    <div className="border-t border-border bg-background p-3 sm:p-4">
+      <div className="flex items-end gap-2 sm:gap-3">
         <Tooltip content="Upload File" size="sm">
         <button
           type="button"
           onClick={onUpload}
-          className="rounded-lg cursor-pointer border border-border p-3 hover:bg-surface"
+          className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-border hover:bg-surface"
         >
           <Paperclip size={18} />
         </button>
@@ -48,6 +48,8 @@ const ChatInput = ({
           onKeyDown={handleKeyDown}
           className="
             flex-1
+            min-w-0
+            max-h-32
             resize-none
             rounded-xl
             border
@@ -66,11 +68,15 @@ const ChatInput = ({
           onClick={handleSend}
           disabled={!message.trim() || loading}
           className="
+            flex
+            h-11
+            w-11
+            shrink-0
+            items-center
+            justify-center
             rounded-xl
             cursor-pointer
             bg-primary
-            px-5
-            py-3
             text-white
             hover:bg-primary-hover
             disabled:opacity-50

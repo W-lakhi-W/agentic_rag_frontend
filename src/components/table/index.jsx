@@ -7,7 +7,7 @@ const Table = ({
 }) => {
   if (loading) {
     return (
-      <div className="rounded-xl border border-border bg-background p-8 text-center">
+      <div className="rounded-xl border border-border bg-background p-5 text-center sm:p-8">
         Loading...
       </div>
     );
@@ -15,7 +15,7 @@ const Table = ({
 
   if (!data.length) {
     return (
-      <div className="rounded-xl border border-border bg-background p-8 text-center text-text-muted">
+      <div className="rounded-xl border border-border bg-background p-5 text-center text-text-muted sm:p-8">
         {emptyMessage}
       </div>
     );
@@ -24,14 +24,14 @@ const Table = ({
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-background">
       <div className="overflow-x-auto">
-        <table className="min-w-full border-collapse">
+        <table className="min-w-[640px] border-collapse md:min-w-full">
 
           <thead className="bg-surface">
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.accessor}
-                  className="border-b border-border px-6 py-4 text-left text-sm font-semibold text-text"
+                  className="border-b border-border px-4 py-3 text-left text-sm font-semibold text-text md:px-6 md:py-4"
                 >
                   {column.header}
                 </th>
@@ -48,7 +48,7 @@ const Table = ({
                 {columns.map((column) => (
                   <td
                     key={column.accessor}
-                    className="px-6 py-4 text-sm text-text"
+                    className="px-4 py-3 text-sm text-text md:px-6 md:py-4"
                   >
                     {column.render
                       ? column.render(row)

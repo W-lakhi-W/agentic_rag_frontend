@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import toast from "react-hot-toast";
+import { Menu, X } from "lucide-react";
 import Sidebar from "../../components/sidebar";
 import { sidebarItems } from "../../components/sidebar/sidebardata";
 import { demoChatHistory } from "../../components/sidebar/demochathistory";
@@ -16,6 +17,7 @@ const AppLayout = () => {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [deleteChatId, setDeleteChatId] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const { isAuthenticated } = useAuth();
 
   const sortChatsByNewest = (items = []) =>
@@ -100,9 +102,40 @@ const AppLayout = () => {
   }, [isAuthenticated]);
 
   return (
-    <div className="h-screen flex overflow-hidden bg-gray-100">
-      {/* Sidebar */}
-      <aside className="w-64 border-r border-border bg-white h-screen p-5">
+    <div className="flex h-dvh overflow-hidden bg-gray-100">
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close sidebar"
+          className="fixed inset-0 z-30 bg-black/40 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <button
+        type="button"
+        aria-label="Open sidebar"
+        onClick={() => setSidebarOpen(true)}
+        className="fixed left-3 top-3 z-20 flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-white shadow-sm md:hidden"
+      >
+        <Menu size={20} />
+      </button>
+
+      <aside
+        className={`
+          fixed inset-y-0 left-0 z-40 h-dvh w-72 max-w-[85vw] border-r border-border bg-white p-4 transition-transform duration-200
+          md:static md:w-64 md:max-w-none md:translate-x-0 md:p-5
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+      >
+        <button
+          type="button"
+          aria-label="Close sidebar"
+          onClick={() => setSidebarOpen(false)}
+          className="absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-lg hover:bg-surface md:hidden"
+        >
+          <X size={20} />
+        </button>
         <Sidebar
           sidebarItems={sidebarItems}
           chatHistory={chats}
@@ -110,6 +143,7 @@ const AppLayout = () => {
           viewChat={handleViewChat}
           onSelectNewChat={handleSelectNewChat}
           selectedChat={selectedChat}
+          onNavigate={() => setSidebarOpen(false)}
         />
       </aside>
 
@@ -121,7 +155,7 @@ const AppLayout = () => {
         }}
         title="Delete chat?"
         footer={
-          <div className="flex justify-end gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={() => {
@@ -149,7 +183,7 @@ const AppLayout = () => {
       </Modal>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden">
+      <main className="min-w-0 flex-1 overflow-hidden">
         <Outlet
           context={{
             messages,

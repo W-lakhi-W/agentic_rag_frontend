@@ -4,8 +4,7 @@ const SidebarItem = ({ item, activeChatId, onClick }) => {
   const Icon = item.icon;
   const location = useLocation();
 
-  const isChatRoute = item.path === "/chats";
-  const isActive = isChatRoute
+  const isActive = item.path === "/chats"
     ? location.pathname === item.path && !activeChatId
     : location.pathname === item.path;
 
@@ -13,11 +12,11 @@ const SidebarItem = ({ item, activeChatId, onClick }) => {
     <NavLink
       to={item.path}
       onClick={() => {
-        if (isChatRoute) onClick?.();
+        onClick?.(item);
       }}
       className={() =>
         `
-        flex items-center gap-3
+        flex min-h-11 items-center gap-3
         px-4 py-3
         rounded-lg
         transition
@@ -30,7 +29,7 @@ const SidebarItem = ({ item, activeChatId, onClick }) => {
       }
     >
       <Icon size={20} />
-      <span>{item.title}</span>
+      <span className="truncate">{item.title}</span>
     </NavLink>
   );
 };

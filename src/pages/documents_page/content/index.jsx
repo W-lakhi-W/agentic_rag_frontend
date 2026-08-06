@@ -23,10 +23,10 @@ const cols = ({onView, onDelete}) => [
     header: "Actions",
 
     render: (row) => (
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         <Tooltip content="View Document" size="sm">
           <button
-            className="text-primary"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-primary hover:bg-surface"
             onClick={() => onView(row.id)}
           >
             <Eye size={18} />
@@ -35,7 +35,7 @@ const cols = ({onView, onDelete}) => [
 
         <Tooltip content="Delete Document" size="sm">
           <button
-            className="text-error"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-error hover:bg-surface"
             onClick={() => onDelete(row.id)}
           >
             <Trash2 size={18} />

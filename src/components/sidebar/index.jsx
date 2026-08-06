@@ -15,6 +15,7 @@ const Sidebar = ({
   viewChat,
   onSelectNewChat,
   selectedChat,
+  onNavigate,
 }) => {
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
@@ -36,8 +37,8 @@ const Sidebar = ({
   });
 
   return (
-    <>
-      <div className="mb-8 flex items-center gap-3">
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="mb-6 flex items-center gap-3 pr-12 md:mb-8 md:pr-0">
         <img
           src="/logo.png"
           alt="Agent logo"
@@ -54,15 +55,18 @@ const Sidebar = ({
             key={item.id}
             item={item}
             activeChatId={selectedChat}
-            onClick={item.path === "/chats" ? onSelectNewChat : undefined}
+            onClick={(clickedItem) => {
+              if (clickedItem.path === "/chats") onSelectNewChat?.();
+              onNavigate?.();
+            }}
           />
         ))}
       </nav>
 
       {isAuthenticated && (
-        <>
+        <div className="mt-4 flex min-h-0 flex-1 flex-col">
           <h1 className="text-sm text-text-muted mt-2">Chat History</h1>
-          <div className="mt-2">
+          <div className="mt-2 min-h-0 overflow-y-auto pr-1">
             {history.length > 0 ? (
               <div className="space-y-2">
                 {history.map((chat) => (
@@ -76,6 +80,7 @@ const Sidebar = ({
                     onClick={() => {
                       navigate("/chats");
                       viewChat(chat.id);
+                      onNavigate?.();
                     }}
                   />
                 ))}
@@ -86,7 +91,7 @@ const Sidebar = ({
               </div>
             )}
           </div>
-        </>
+        </div>
       )}
 
       {isAuthenticated && (
@@ -95,7 +100,7 @@ const Sidebar = ({
             <button
               type="button"
               onClick={() => setLogoutModalOpen(true)}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
+              className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50"
             >
               <LogOut size={16} />
               Logout
@@ -107,7 +112,7 @@ const Sidebar = ({
             onClose={() => setLogoutModalOpen(false)}
             title="Log out?"
             footer={
-              <div className="flex justify-end gap-3">
+              <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={() => setLogoutModalOpen(false)}
@@ -131,7 +136,7 @@ const Sidebar = ({
           </Modal>
         </>
       )}
-    </>
+    </div>
   );
 };
 

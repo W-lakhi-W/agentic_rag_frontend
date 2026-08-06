@@ -41,22 +41,22 @@ const Modal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-3 sm:p-4"
       onClick={closeOnOverlay ? onClose : undefined}
     >
       <div
-        className={`w-full ${sizes[size]} rounded-xl bg-white shadow-xl`}
+        className={`my-auto flex max-h-[calc(100dvh-1.5rem)] w-full flex-col ${sizes[size]} rounded-xl bg-white shadow-xl sm:max-h-[calc(100dvh-2rem)]`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         {(title || showCloseButton) && (
-          <div className="flex items-center justify-between border-b px-6 py-4">
-            <h2 className="text-lg font-semibold">{title}</h2>
+          <div className="flex items-center justify-between gap-4 border-b px-4 py-3 sm:px-6 sm:py-4">
+            <h2 className="min-w-0 truncate text-base font-semibold sm:text-lg">{title}</h2>
 
             {showCloseButton && (
               <button
                 onClick={onClose}
-                className="text-xl text-gray-500 hover:text-black"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-xl text-gray-500 hover:bg-surface hover:text-black"
               >
                 ✕
               </button>
@@ -65,13 +65,13 @@ const Modal = ({
         )}
 
         {/* Body */}
-        <div className="p-6">
+        <div className="overflow-y-auto p-4 sm:p-6">
           {children}
         </div>
 
         {/* Footer */}
         {footer && (
-          <div className="border-t px-6 py-4">
+          <div className="border-t px-4 py-3 sm:px-6 sm:py-4">
             {footer}
           </div>
         )}

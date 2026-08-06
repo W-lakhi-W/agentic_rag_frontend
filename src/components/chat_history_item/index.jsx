@@ -21,9 +21,10 @@ const ChatHistoryItem = ({
         w-full
         items-center
         justify-between
+        min-h-11
         rounded-lg
         px-3
-        py-1
+        py-2
         text-left
         transition-colors
         mb-0
@@ -55,13 +56,18 @@ const ChatHistoryItem = ({
       <Tooltip content="Delete chat" size="sm">
         <button
           onClick={handleDelete}
-          className={`
+        className={`
+            flex
+            h-9
+            w-9
+            items-center
+            justify-center
             rounded-md
-            p-1.5
-            opacity-0
+            opacity-100
             transition-all
 
-            group-hover:opacity-100
+            sm:opacity-0
+            sm:group-hover:opacity-100
 
             ${
               active

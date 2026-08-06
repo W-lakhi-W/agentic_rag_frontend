@@ -275,7 +275,7 @@ const ChatPage = () => {
         }
       />
 
-      <div className="ml-4">
+      <div className="max-w-full sm:ml-4">
         {uploadFiles.length > 0 && (
           <UploadPreview files={uploadFiles} onRemove={handleRemoveFile} />
         )}

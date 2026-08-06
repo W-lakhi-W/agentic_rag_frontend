@@ -3,11 +3,11 @@ import CircularProgress from "../circular_progress";
 
 const UploadPreview = ({ files, onRemove }) => {
   return (
-    <div className="mb-3 flex flex-wrap gap-3">
+    <div className="mb-3 flex max-w-full flex-wrap gap-2 px-3 sm:gap-3 sm:px-0">
       {files.map((item) => (
         <div
           key={item.id}
-          className="flex items-center gap-3 rounded-xl border border-border bg-surface px-3 py-2"
+          className="flex min-w-0 max-w-full items-center gap-3 rounded-xl border border-border bg-surface px-3 py-2 sm:max-w-xs"
         >
           <FileText className="text-primary" size={18} />
 
@@ -34,6 +34,7 @@ const UploadPreview = ({ files, onRemove }) => {
 
           <button
             onClick={() => onRemove(item.id)}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg hover:bg-background"
           >
             <X size={16} />
           </button>

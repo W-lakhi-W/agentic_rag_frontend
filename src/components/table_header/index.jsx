@@ -8,14 +8,14 @@ const TableHeader = ({
   children,
 }) => {
   return (
-    <div className="flex flex-col gap-5 rounded-xl border border-border bg-background p-5">
+    <div className="flex flex-col gap-4 rounded-xl border border-border bg-background p-4 sm:gap-5 sm:p-5">
 
       {/* Top Row */}
       <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
 
-        <div>
+        <div className="min-w-0">
           {title && (
-            <h2 className="text-xl font-semibold text-text">
+            <h2 className="text-lg font-semibold text-text sm:text-xl">
               {title}
             </h2>
           )}
